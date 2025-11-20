@@ -230,6 +230,60 @@
     <article class="col-12 col-md-12 mx-auto index-info">
       <h2 class="index-header">
         
+        <a href="/2025/11/20/K8s%E4%B9%8B%E5%AE%89%E5%85%A8%E8%AE%A4%E8%AF%81/" target="_self">
+          K8s之安全认证
+        </a>
+      </h2>
+
+      
+      <a class="index-excerpt index-excerpt__noimg" href="/2025/11/20/K8s%E4%B9%8B%E5%AE%89%E5%85%A8%E8%AE%A4%E8%AF%81/" target="_self">
+        <div>
+          K8s之安全认证Kubernetes 集群的安全机制Kubernetes 作为一个分部署集群的管理工具，保证集群的安全性是其一个重要的任务。API Server 是集群内部各个组件通信的中介，也是外部控制的入口。所以 Kubernetes 的集群安全机制基本就是围绕保护 API Server 来设计的。  认证认证的方式1、HTTP Token 认证：通过一个 Token 来识别合法用户  HTT
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2025-11-20 22:10" pubdate>
+              2025-11-20
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3 d-flex align-items-center">
+            <i class="iconfont icon-category"></i>
+            
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/K8s/" class="category-chain-item">K8s</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+          </div>
+        
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h2 class="index-header">
+        
         <a href="/2025/11/20/Ubuntu%E5%92%8CCentos%E7%9A%84%E5%8C%BA%E5%88%AB/" target="_self">
           Ubuntu和Centos的区别
         </a>
@@ -338,15 +392,15 @@
     <article class="col-12 col-md-12 mx-auto index-info">
       <h2 class="index-header">
         
-        <a href="/2025/11/19/hello-world/" target="_self">
-          Hello World
+        <a href="/2025/10/11/K8s%E4%B9%8B%E5%AD%98%E5%82%A8/" target="_self">
+          K8s之存储
         </a>
       </h2>
 
       
-      <a class="index-excerpt index-excerpt__noimg" href="/2025/11/19/hello-world/" target="_self">
+      <a class="index-excerpt index-excerpt__noimg" href="/2025/10/11/K8s%E4%B9%8B%E5%AD%98%E5%82%A8/" target="_self">
         <div>
-          Welcome to Hexo! This is your very first post. Check documentation for more info. If you get any problems when using Hexo, you can find the answer in troubleshooting or you can ask me on GitHub. Quick
+          K8s之存储1、Volume1、概念Kubernetes Volume（数据卷）主要解决了如下两方面问题： （1）数据持久性：通常情况下，容器运行起来之后，写入到其文件系统的文件暂时性的。当容器崩溃后，Kubelet将会重启该容器，此时原容器运行后写入的文件将丢失，因为容器将重新从镜像创建。 （2）数据共享：同一个Pod（容器组）中运行的容器之间，经常会存在共享文件&#x2F;文件夹的需求。 Do
         </div>
       </a>
 
@@ -354,11 +408,227 @@
         
           <div class="post-meta mr-3">
             <i class="iconfont icon-date"></i>
-            <time datetime="2025-11-19 16:56" pubdate>
-              2025-11-19
+            <time datetime="2025-10-11 18:23" pubdate>
+              2025-10-11
             </time>
           </div>
         
+        
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h2 class="index-header">
+        
+        <a href="/2025/10/10/K8s%E4%B9%8BConfigMap/" target="_self">
+          K8s之ConfigMap
+        </a>
+      </h2>
+
+      
+      <a class="index-excerpt index-excerpt__noimg" href="/2025/10/10/K8s%E4%B9%8BConfigMap/" target="_self">
+        <div>
+          什么是 ConfigMapConfigmap 是 k8s 中用来存储非机密性数据的 API 对象。它提供了一种环境配置信息（如配置文件、命令行参数、环境变量等）与容器镜像分离的方法，使应用程序的配置可以独立于容器镜像进行管理和修改。 kubelet 定期同步变更（默认1分钟），通过软连接实现热更新，而不是共享文件夹 configmap 使用创建方式基于命令行1234567891011# 从文件创建
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2025-10-10 11:20" pubdate>
+              2025-10-10
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3 d-flex align-items-center">
+            <i class="iconfont icon-category"></i>
+            
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/K8s/" class="category-chain-item">K8s</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+          </div>
+        
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h2 class="index-header">
+        
+        <a href="/2025/09/20/K8s%E4%B9%8BService/" target="_self">
+          K8s之Service
+        </a>
+      </h2>
+
+      
+      <a class="index-excerpt index-excerpt__noimg" href="/2025/09/20/K8s%E4%B9%8BService/" target="_self">
+        <div>
+          Service1、什么是Service为什么需要 ServiceKubernetes 中 Pod 是随时可以消亡的（节点故障、容器内应用程序错误等原因）。如果使用 Deployment 运行您的应用程序，Deployment 将会在 Pod 消亡后再创建一个新的 Pod 以维持所需要的副本数。每一个 Pod 有自己的 IP 地址，然而，对于 Deployment 而言，对应 Pod 集合是动态变化
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2025-09-20 22:00" pubdate>
+              2025-09-20
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3 d-flex align-items-center">
+            <i class="iconfont icon-category"></i>
+            
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/K8s/" class="category-chain-item">K8s</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+          </div>
+        
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h2 class="index-header">
+        
+        <a href="/2025/09/20/K8s%E4%B9%8BPod/" target="_self">
+          K8s之Pod
+        </a>
+      </h2>
+
+      
+      <a class="index-excerpt index-excerpt__noimg" href="/2025/09/20/K8s%E4%B9%8BPod/" target="_self">
+        <div>
+          K8s之Pod什么是PodPod是kubernetes中最小的可部署单元。一个Pod包含了一个应用程序容器（或者多个容器）、存储资源、一个唯一的IP地址、以及一些确定该容器如何运行的选项。Pod容器组代表了Kubernetes中一个独立的应用程序运行实例。他们：  共享网络命名空间：Pod内所有的容器共享同一个IP地址和端口空间。 共享存储卷：Pod可以定义一组共享的存储卷，使容器间可共享文件 共
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2025-09-20 18:28" pubdate>
+              2025-09-20
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3 d-flex align-items-center">
+            <i class="iconfont icon-category"></i>
+            
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/K8s/" class="category-chain-item">K8s</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+          </div>
+        
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h2 class="index-header">
+        
+        <a href="/2025/09/19/K8s%E4%B9%8B%E6%8E%A7%E5%88%B6%E5%99%A8/" target="_self">
+          K8s之控制器
+        </a>
+      </h2>
+
+      
+      <a class="index-excerpt index-excerpt__noimg" href="/2025/09/19/K8s%E4%B9%8B%E6%8E%A7%E5%88%B6%E5%99%A8/" target="_self">
+        <div>
+          K8s之控制器1、Deployment控制器什么是控制器在Kubernetes中运行了一系列的控制器来确保集群的当前状态与期望状态是一致，他们就是kubernetes集群内部的管理控制中心。例如，ReplicaSet控制器负责维护集群中运行的Pod数量；Node控制器负责监控节点的状态，并在节点出现故障时，执行自动化修复流程。确保集群始终处于预期的工作状态。 ReplicaSet和Replicat
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2025-09-19 20:22" pubdate>
+              2025-09-19
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3 d-flex align-items-center">
+            <i class="iconfont icon-category"></i>
+            
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/K8s/" class="category-chain-item">K8s</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+          </div>
         
         
       </div>

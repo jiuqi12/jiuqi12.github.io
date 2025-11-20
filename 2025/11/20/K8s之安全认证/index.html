@@ -1,0 +1,735 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="JiuQi">
+  <meta name="keywords" content="linux,sre,kubernetes">
+  
+    <meta name="description" content="K8s之安全认证Kubernetes 集群的安全机制Kubernetes 作为一个分部署集群的管理工具，保证集群的安全性是其一个重要的任务。API Server 是集群内部各个组件通信的中介，也是外部控制的入口。所以 Kubernetes 的集群安全机制基本就是围绕保护 API Server 来设计的。  认证认证的方式1、HTTP Token 认证：通过一个 Token 来识别合法用户  HTT">
+<meta property="og:type" content="article">
+<meta property="og:title" content="K8s之安全认证">
+<meta property="og:url" content="http://example.com/2025/11/20/K8s%E4%B9%8B%E5%AE%89%E5%85%A8%E8%AE%A4%E8%AF%81/index.html">
+<meta property="og:site_name" content="jiuqi">
+<meta property="og:description" content="K8s之安全认证Kubernetes 集群的安全机制Kubernetes 作为一个分部署集群的管理工具，保证集群的安全性是其一个重要的任务。API Server 是集群内部各个组件通信的中介，也是外部控制的入口。所以 Kubernetes 的集群安全机制基本就是围绕保护 API Server 来设计的。  认证认证的方式1、HTTP Token 认证：通过一个 Token 来识别合法用户  HTT">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2025/png/29302735/1757078338305-fed2d0af-f047-4016-9d4e-4007af0402c6.png">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2025/png/29302735/1757080706754-0ba5ed5c-7c5c-4c27-9fad-97be5a066a72.png">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2025/png/29302735/1757081996085-7060830f-0605-4e07-b897-7fbec02b8dcb.png">
+<meta property="article:published_time" content="2025-11-20T14:10:00.000Z">
+<meta property="article:modified_time" content="2025-11-20T14:53:05.795Z">
+<meta property="article:author" content="JiuQi">
+<meta property="article:tag" content="kubernetes">
+<meta property="article:tag" content="linux">
+<meta property="article:tag" content="sre">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://cdn.nlark.com/yuque/0/2025/png/29302735/1757078338305-fed2d0af-f047-4016-9d4e-4007af0402c6.png">
+  
+  
+  
+  <title>K8s之安全认证 - jiuqi</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1736178_k526ubmyhba.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 8.1.1"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Welcome</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="K8s之安全认证"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2025-11-20 22:10" pubdate>
+          2025年11月20日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          1.7k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          14 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">K8s之安全认证</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="K8s之安全认证"><a href="#K8s之安全认证" class="headerlink" title="K8s之安全认证"></a>K8s之安全认证</h1><h2 id="Kubernetes-集群的安全机制"><a href="#Kubernetes-集群的安全机制" class="headerlink" title="Kubernetes 集群的安全机制"></a>Kubernetes 集群的安全机制</h2><p>Kubernetes 作为一个分部署集群的管理工具，保证集群的安全性是其一个重要的任务。API Server 是集群内部各个组件通信的中介，也是外部控制的入口。所以 Kubernetes 的集群安全机制基本就是围绕保护 API Server 来设计的。</p>
+<p><img src="https://cdn.nlark.com/yuque/0/2025/png/29302735/1757078338305-fed2d0af-f047-4016-9d4e-4007af0402c6.png" srcset="/img/loading.gif" lazyload alt="img"></p>
+<h2 id="认证"><a href="#认证" class="headerlink" title="认证"></a>认证</h2><h3 id="认证的方式"><a href="#认证的方式" class="headerlink" title="认证的方式"></a>认证的方式</h3><p>1、HTTP Token 认证：通过一个 Token 来识别合法用户</p>
+<ul>
+<li>HTTP Token 的认证是用一个很长的特殊编码的并且难以被模仿的字符串 <code>Token</code> 来表达客户的一种方式。每一个 Token 对应一个用户名存储在 API Server 能访问的文件中。当客户端发起 API 调用请求的时候，需要在 HTTP Header 里放入 Token</li>
+</ul>
+<p>2、HTTP Base 认证：通过用户名+密码的方式认证</p>
+<ul>
+<li>用户名+：密码 用 BASE64 算法进行编码后的字符串放在 HTTP Request 中的 Heather Authorization 域里发送给服务端，服务端收到后进行解码得到用户名以及密码。</li>
+</ul>
+<p>3、HTTPS 证书认证：基于 CA 根证书签名的客户端身份认证方式</p>
+<p>在集群内部，当 Controller Manager、Scheduler 与 API Server 在同一台机器，就可以直接使用 API Server 的非安全端口访问，<code>--insecure-bind-address=127.0.0.1</code></p>
+<p>kubectl、kubelet、kubeproxy 访问 API Server 就都需要进行 HTTPS 双向认证。</p>
+<p><img src="https://cdn.nlark.com/yuque/0/2025/png/29302735/1757080706754-0ba5ed5c-7c5c-4c27-9fad-97be5a066a72.png" srcset="/img/loading.gif" lazyload alt="img"></p>
+<h5 id="1、Service-Account"><a href="#1、Service-Account" class="headerlink" title="1、Service Account"></a>1、Service Account</h5><ul>
+<li>1、如果Pod没有设置sa，则将sa设置为默认的 default</li>
+<li>2、如果Pod不包含任何的imagepullsecrets，则将sa的imagepullsecrets添加到pod中</li>
+<li>3、sa 的默认挂载路径为：<code>/run/secrets/kubernetes.io/serviceaccount/</code></li>
+</ul>
+<p>默认情况下，每个 nameSpace 都会有一个名为 <code>default</code> 的 Service Account。</p>
+<p>SA 组成：</p>
+<ul>
+<li>ca.crt：集群的根证书，用于 Pod 确认 apiserver 的安全性</li>
+<li>token：使用 apiserver 的私钥签发的基于 JWT 标注的字符串，用于 apiserver 确认 Pod 的安全性</li>
+<li>namespace：用于表示当前的 Pod 的作用域</li>
+</ul>
+<p>创建一个带 token 的 sa</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs yaml"><span class="hljs-attr">apiVersion:</span> <span class="hljs-string">v1</span><br><span class="hljs-attr">kind:</span> <span class="hljs-string">ServiceAccount</span><br><span class="hljs-attr">metadata:</span><br>  <span class="hljs-attr">name:</span> <span class="hljs-string">nginx</span><br><span class="hljs-meta">---</span><br><span class="hljs-attr">apiVersion:</span> <span class="hljs-string">v1</span><br><span class="hljs-attr">kind:</span> <span class="hljs-string">Secret</span><br><span class="hljs-attr">metadata:</span><br>  <span class="hljs-attr">name:</span> <span class="hljs-string">nginx</span><br>  <span class="hljs-attr">annotations:</span><br>    <span class="hljs-attr">kubernetes.io/service-account.name:</span> <span class="hljs-string">nginx</span><br><span class="hljs-attr">type:</span> <span class="hljs-string">kubernetes.io/service-account-token</span><br></code></pre></td></tr></table></figure>
+
+<h5 id="2、User-Account"><a href="#2、User-Account" class="headerlink" title="2、User Account"></a>2、User Account</h5><p>普通账户时假定为外部或独立服务管理的，有管理员分配keys，用户像使用keystone和google账号一样，被存储在包含username和pasword的list文件中。</p>
+<p>普通账户是针对个人用户的，服务账户针对Pod进程。</p>
+<p>普通账户时全局性的。在集群所有的namespaces中，名称具有唯一性。</p>
+<p>在k8s中不能通过API调用普通用户添加到集群中</p>
+<h2 id="什么是鉴权"><a href="#什么是鉴权" class="headerlink" title="什么是鉴权"></a>什么是鉴权</h2><p>上面的认证过程，只是确认通信双方都确认对方是可信的，可以相互通信。而鉴权是确定请求方有哪些资源的权限。API Server 目前支持以下几种授权策略（通过 API Server 的启动参数<code>--authorization-mode</code>设置）</p>
+<ul>
+<li>AlwaysDeny：表示拒绝所有的请求，一般用于测试</li>
+<li>AlwaysAllow：允许接收所有的请求，如果集群不需要授权流程，则可以采用该策略</li>
+<li>ABAC(Attribute-Based Access Control)：基于属性的访问控制，表示使用用户配置的授权规则对用户请求进行匹配和控制</li>
+<li>Webhook：通过调用外部 REST 服务对用户进行授权</li>
+<li>RBAC(Role-Based Access Control)：基于角色的访问控制，现行的默认规则</li>
+</ul>
+<h2 id="RBAC-介绍"><a href="#RBAC-介绍" class="headerlink" title="RBAC 介绍"></a>RBAC 介绍</h2><h3 id="什么是-RBAC"><a href="#什么是-RBAC" class="headerlink" title="什么是 RBAC"></a>什么是 RBAC</h3><p>基于角色的访问控制，在 Kubernetes 1.5 版本中引入，现行版本成为默认标准。相对于其他访问控制方式，拥有以下优势：</p>
+<ul>
+<li>对集群中的资源和非资源都拥有完整的覆盖</li>
+<li>整个 RBAC 完全由几个 API 对象完成，同其他 API 对象一样，可以用 kubectl 或 API 进行操作</li>
+<li>可以在运行时进行调整，无需重启 API Server</li>
+</ul>
+<h2 id="RBAC-核心知识"><a href="#RBAC-核心知识" class="headerlink" title="RBAC 核心知识"></a>RBAC 核心知识</h2><p><code>Kubernetes</code>有一个很基本的特性就是它的所有资源对象都是模型化的 API 对象，允许执行 CRUD(Create、Read、Update、Delete)操作(也就是我们常说的增、删、改、查操作)，比如下面的这下资源：</p>
+<ul>
+<li>Pods</li>
+<li>ConfigMaps</li>
+<li>Deployments</li>
+<li>Nodes</li>
+<li>Secrets</li>
+<li>Namespaces</li>
+</ul>
+<p>上面这些资源对象的可能存在的操作有：</p>
+<ul>
+<li>create</li>
+<li>get</li>
+<li>delete</li>
+<li>list</li>
+<li>update</li>
+<li>edit</li>
+<li>watch</li>
+<li>exec</li>
+</ul>
+<p>RBAC 引入的 4 个顶级资源对象来实现 Kubernetes 集群中资源的操作，分别是 <code>Role</code>、ClusterRole、RoleBinding、ClusterRoleBinding。</p>
+<p><img src="https://cdn.nlark.com/yuque/0/2025/png/29302735/1757081996085-7060830f-0605-4e07-b897-7fbec02b8dcb.png" srcset="/img/loading.gif" lazyload alt="img"></p>
+<h5 id="创建-Role"><a href="#创建-Role" class="headerlink" title="创建 Role"></a>创建 Role</h5><p>Role 表示一个角色，会包含一组权限，权限只会增加（累加权限），不存在一个资源一开始就有很多权限而通过 RBAC 对其进行减少的操作。他是 namespace 级别的资源，只能作用于namespace之内。如果想要跨 namespace 则可以创建 ClusterRole</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs plain">apiVersion: rbac.authorization.k8s.io/v1<br>kind: Role<br>metadata:<br>  name: pod-role<br>  namespace: default<br>rules:<br>- apiGroups: [&quot;&quot;]		# 接口组版本，默认为核心组v1<br>  resources: [&quot;pods&quot;]		# 要操作的资源类型，写为资源的复数形式<br>  verbs: [&quot;get&quot;, &quot;list&quot;, &quot;watch&quot;]		# 对资源操作的权限<br></code></pre></td></tr></table></figure>
+
+<h5 id="创建-ClusterRole"><a href="#创建-ClusterRole" class="headerlink" title="创建 ClusterRole"></a>创建 ClusterRole</h5><p>与role一样，区别是资源类型为集群类型，而role只在namespace</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs plain">apiVersion: rbac.authorization.k8s.io/v1<br>kind: ClusterRole<br>metadata:<br>  name: pod-clusterrole<br>rules:<br>- apiGroups: [&quot;&quot;]<br>  resources: [&quot;nodes&quot;]<br>  verbs: [&quot;get&quot;, &quot;list&quot;, &quot;watch&quot;, &quot;create&quot;, &quot;delete&quot;]<br>- apiGroups: [&quot;&quot;]<br>  resources: [&quot;pods&quot;]<br>  verbs: [&quot;get&quot;, &quot;list&quot;, &quot;watch&quot;, &quot;create&quot;, &quot;delete&quot;]<br>- apiGroups: [&quot;extensions&quot;]<br>  resources: [&quot;deployments&quot;]<br>  verbs: [&quot;get&quot;, &quot;list&quot;, &quot;watch&quot;, &quot;create&quot;, &quot;delete&quot;]<br></code></pre></td></tr></table></figure>
+
+<h5 id="创建-RoleBinding"><a href="#创建-RoleBinding" class="headerlink" title="创建 RoleBinding"></a>创建 RoleBinding</h5><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs plain">apiVersion: rbac.authorization.k8s.io/v1<br>kind: RoleBinding<br>metadata:<br>  name: rb<br>  namespace: default<br>subjects:<br>- kind: ServiceAccount<br>  name: zhangsan<br>  namespace: default<br>roleRef:<br>  kind: Role<br>  name: pod-role<br>  apiGroup: rbac.authorization.k8s.io<br></code></pre></td></tr></table></figure>
+
+<h5 id="创建-ClusterRoleBinding"><a href="#创建-ClusterRoleBinding" class="headerlink" title="创建 ClusterRoleBinding"></a>创建 ClusterRoleBinding</h5><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs plain">apiVersion: rbac.authorization.k8s.io/v1<br>kind: ClusterRoleBinding<br>metadata:<br>  name: crb<br>subjects:<br>- kind: ServiceAccount<br>  name: zhangsan<br>  namespace: default<br>roleRef:<br>  kind: ClusterRole<br>  name: pod-clusterrole<br>  apiGroup: rbac.authorization.k8s.io<br></code></pre></td></tr></table></figure>
+
+<h5 id="子资源绑定"><a href="#子资源绑定" class="headerlink" title="子资源绑定"></a>子资源绑定</h5><p>Kubernetes 集群内一些资源一般以其名称字符串来表示，这些字符串一般会在 API 的 URL 地址中出现；同时某些资源也会包含子资源，例如 logs 就属于 Pod 的子资源，API 中 URL 的样例如下：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">GET /api/v1/namespaces/&#123;namespace&#125;/pods/&#123;name&#125;/log<br></code></pre></td></tr></table></figure>
+
+<p>如果要在 RBAC 授权模型中控制这些子资源的访问权限，可以通过<code>/</code> 分隔符来实现，例如：</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs yaml"><span class="hljs-attr">kind:</span> <span class="hljs-string">Role</span><br><span class="hljs-attr">apiVersion:</span> <span class="hljs-string">rbac.authorization.k8s.io/v1</span><br><span class="hljs-attr">metadata:</span><br>  <span class="hljs-attr">name:</span> <span class="hljs-string">crb</span><br>  <span class="hljs-attr">namespace:</span> <span class="hljs-string">default</span><br><span class="hljs-attr">rules:</span><br><span class="hljs-bullet">-</span> <span class="hljs-attr">apiGroups:</span> [<span class="hljs-string">&quot;&quot;</span>]<br>  <span class="hljs-attr">resources:</span> [<span class="hljs-string">&quot;pods/loog&quot;</span>]<br>  <span class="hljs-attr">verbs:</span> [<span class="hljs-string">&quot;get&quot;</span>,<span class="hljs-string">&quot;list&quot;</span>]<br></code></pre></td></tr></table></figure>
+
+<h5 id="注意"><a href="#注意" class="headerlink" title="注意"></a>注意</h5><p>Subjects 可以是 groups、users 或者 sa。</p>
+<p>Users 使用字符串表示，它可以是一个普通的名字字符串，如“zhangsan”；也可以是 email 格式的邮箱地址；甚至是一组字符串形式的数字 ID。但是 User 的前缀 <code>system:</code> 是系统保留的，集群管理员应确保普通用户不会使用这个前缀格式。</p>
+<p>Groups 书写格式与 Users 相同，都是字符串，并且没有特定的格式要求；同样 <code>system:</code>为系统保留</p>
+<h2 id="准入控制"><a href="#准入控制" class="headerlink" title="准入控制"></a>准入控制</h2><p>常用的几个插件的功能</p>
+<ul>
+<li>NamespaceLifecycle：防止在不存在的 namespace 上创建对象，防止删除系统预置的 namespace，删除 namespace 时，连带删除它的所有资源对象</li>
+<li>LimitRanger：确保请求的资源不会超过 namespace 的 LimitRange 的限制</li>
+<li>ServiceAccount：实现了自动化添加 ServiceAccount</li>
+<li>ResourceQuota：确保请求的资源不会超过资源的 ResourceQuota 限制</li>
+</ul>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/K8s/" class="category-chain-item">K8s</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>K8s之安全认证</div>
+      <div>http://example.com/2025/11/20/K8s之安全认证/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>JiuQi</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2025年11月20日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2025/11/20/Ubuntu%E5%92%8CCentos%E7%9A%84%E5%8C%BA%E5%88%AB/" title="Ubuntu和Centos的区别">
+                        <span class="hidden-mobile">Ubuntu和Centos的区别</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/5.0.0/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

@@ -1,0 +1,823 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="JiuQi">
+  <meta name="keywords" content="linux,sre,kubernetes">
+  
+    <meta name="description" content="K8s之存储1、Volume1、概念Kubernetes Volume（数据卷）主要解决了如下两方面问题： （1）数据持久性：通常情况下，容器运行起来之后，写入到其文件系统的文件暂时性的。当容器崩溃后，Kubelet将会重启该容器，此时原容器运行后写入的文件将丢失，因为容器将重新从镜像创建。 （2）数据共享：同一个Pod（容器组）中运行的容器之间，经常会存在共享文件&#x2F;文件夹的需求。 Do">
+<meta property="og:type" content="article">
+<meta property="og:title" content="K8s之存储">
+<meta property="og:url" content="http://example.com/2025/10/11/K8s%E4%B9%8B%E5%AD%98%E5%82%A8/index.html">
+<meta property="og:site_name" content="jiuqi">
+<meta property="og:description" content="K8s之存储1、Volume1、概念Kubernetes Volume（数据卷）主要解决了如下两方面问题： （1）数据持久性：通常情况下，容器运行起来之后，写入到其文件系统的文件暂时性的。当容器崩溃后，Kubelet将会重启该容器，此时原容器运行后写入的文件将丢失，因为容器将重新从镜像创建。 （2）数据共享：同一个Pod（容器组）中运行的容器之间，经常会存在共享文件&#x2F;文件夹的需求。 Do">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2025-10-11T10:23:00.000Z">
+<meta property="article:modified_time" content="2025-11-20T14:50:12.748Z">
+<meta property="article:author" content="JiuQi">
+<meta property="article:tag" content="kubernetes">
+<meta property="article:tag" content="linux">
+<meta property="article:tag" content="sre">
+<meta name="twitter:card" content="summary_large_image">
+  
+  
+  
+  <title>K8s之存储 - jiuqi</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1736178_k526ubmyhba.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 8.1.1"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Welcome</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="K8s之存储"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2025-10-11 18:23" pubdate>
+          2025年10月11日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          2.7k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          23 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">K8s之存储</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="K8s之存储"><a href="#K8s之存储" class="headerlink" title="K8s之存储"></a>K8s之存储</h1><h2 id="1、Volume"><a href="#1、Volume" class="headerlink" title="1、Volume"></a>1、Volume</h2><h3 id="1、概念"><a href="#1、概念" class="headerlink" title="1、概念"></a>1、概念</h3><p>Kubernetes Volume（数据卷）主要解决了如下两方面问题：</p>
+<p>（1）数据持久性：通常情况下，容器运行起来之后，写入到其文件系统的文件暂时性的。当容器崩溃后，Kubelet将会重启该容器，此时原容器运行后写入的文件将丢失，因为容器将重新从镜像创建。</p>
+<p>（2）数据共享：同一个Pod（容器组）中运行的容器之间，经常会存在共享文件&#x2F;文件夹的需求。</p>
+<p>Docker里同样也存在一个Volume（数据卷）的概念，但是Docker对数据卷的管理相对Kubernetes而言要更少一些。在Docker里，一个Volume仅仅是宿主机（或另一个容器）文件系统上的一个文件夹。Docker并不管理Volume的生命周期。</p>
+<p>在Kubernetes里，Volume存在明确的生命周期（与包含该数据卷的容器组相同）。因此Volume的生命周期比同一容器组中任意容器的生命周期要更长，不管容器重启了多少次，数据都能被保留下来。当然，如果容器组退出了，数据卷也就自然退出了。此时，根据容器组所使用的Volume类型不同，数据可能随数据卷的退出而删除，也可能被真正持久化，并在下次容器组重启时仍然可以使用。</p>
+<p>从根本上来说，一个Volume仅仅是一个可被容器组中的容器访问的文件目录（也许其中包含一些数据文件）。这个目录是怎么来的，取决于该数据卷的类型（不同类型的数据卷使用不同的存储介质）。</p>
+<p>我们现在通过图1-1来理解容器组、容器、挂载点、数据卷、存储介质（NFS、PVC、ConfigMap）等几个概念之间的关系：</p>
+<p>● 一个容器组可以包含多个数据卷、多个容器。</p>
+<p>● 一个容器通过挂载点决定某一个数据卷被挂载到容器中的什么路径。</p>
+<p>● 不同类型的数据卷对应不同的存储介质。</p>
+<h3 id="2、类型"><a href="#2、类型" class="headerlink" title="2、类型"></a>2、类型</h3><p>Kubernetes目前支持多达28种数据卷类型（其中大部分特定于具体的云环境如GCE&#x2F;AWS&#x2F;Azure等）。自建Kubernetes时，经常使用的数据卷的类型描述有以下几种。</p>
+<h5 id="emptyDir"><a href="#emptyDir" class="headerlink" title="emptyDir"></a>emptyDir</h5><p>emptyDir类型的数据卷是在Pod被创建时分配给该Pod的，并且直到Pod被移除，该数据卷才会被释放。正如他的名字所述，该数据卷初始分配时，始终是一个空目录。同一Pod中的不同容器都可以对该目录执行读写操作，并且共享其中的数据，（尽管不同的容器可能将该数据卷挂载到容器中的不同路径）。当Pod被删除时，emptyDir数据卷中的数据将被永久删除。</p>
+<p>容器崩溃时，Kubelet并不会删除容器组，而仅仅是将容器重启，因此emptyDir中的数据在容器崩溃并重启后，仍然是存在的。</p>
+<p>他的常见用有：</p>
+<ul>
+<li>暂存空间，例如用于基于磁盘的合并排序，用作长时间计算奔溃恢复时的检查点</li>
+<li>Web服务器容器提供数据时，保存内容管理器容器提取的文件</li>
+</ul>
+<p>在kubelet的工作目录(root-dir 参数控制)，默认为 &#x2F;var&#x2F;lib&#x2F;kubelet，会为每一个使用了emptyDir的Pod创建一个目录，格式如 <code>/var/lib/kubelet/pods/{podid}/volumes/kubernetes.io~empty-dir</code>，所有放在emptyDir 的数据，最终都是落在了<code>node的上述路径</code>中</p>
+<h5 id="HostPath"><a href="#HostPath" class="headerlink" title="HostPath"></a>HostPath</h5><p>HostPath类型的数据卷将Pod所在节点的文件系统上某一个文件或文件夹挂载进容器组（容器）。除了为HostPath指定Path字段以外，用户还可以为其指定Type字段：</p>
+<table>
+<thead>
+<tr>
+<th><strong>Type字段取值</strong></th>
+<th><strong>描述</strong></th>
+</tr>
+</thead>
+<tbody><tr>
+<td></td>
+<td>空字符串（default）用于向后兼容，此时，Kubernetes在挂载HostPath数据卷前不会执行任何检查</td>
+</tr>
+<tr>
+<td>DirectoryOrCreate</td>
+<td>如果指定的 HostPath 路径不存在，Kubernetes 将在节点的该路径上创建一个空目录，权限设置为0755，与Kubelet进程具备相同的组和所有权</td>
+</tr>
+<tr>
+<td>Directory</td>
+<td>指定HostPath路径必须存在，且是一个文件夹</td>
+</tr>
+<tr>
+<td>FileOrCreate</td>
+<td>如果指定的HostPath 路径不存在，Kubernetes将在节点的该路径上创建一个空的文件，权限设置为0644，与Kubelet进程具备相同的组和所有权</td>
+</tr>
+<tr>
+<td>File</td>
+<td>指定HostPath路径必须存在对应文件</td>
+</tr>
+<tr>
+<td>Socket</td>
+<td>指定HostPath 路径必须存在一个Unix Socket</td>
+</tr>
+<tr>
+<td>CharDevice</td>
+<td>指定HostPath 路径必须存在character device（字符设备）</td>
+</tr>
+<tr>
+<td>BlockDevice</td>
+<td>指定HostPath 路径必须存在block device（块设备）</td>
+</tr>
+</tbody></table>
+<p>使用HostPath数据卷时，需要注意如下几点：</p>
+<ol>
+<li>由于节点上的文件不同，具有相同配置（如从podTemplate创建的）的Pods在不同节点上的行为可能不同。</li>
+<li>当Kubernetes按照计划添加资源感知调度时，它将不会使用HostPath声明的资源。</li>
+<li>需要在一个有特权的容器中以Root身份运行进程，或者修改主机上的文件权限，以便能够写入HostPath卷。</li>
+</ol>
+<h5 id="NFS"><a href="#NFS" class="headerlink" title="NFS"></a>NFS</h5><p>NFS使我们可以挂载已经存在的共享到的我们的Pod中，和emptyDir不同的是，当我们的Pod被删除的时候emptyDir会被删除，但是NFS不会被删除，仅仅是解除挂在状态而已，这就意味着NFS能够允许我们提前对数据进行处理，而且这些数据可以在Pod之间相互传递。并且，NFS可以同时被多个Pod挂在并进行读写。</p>
+<p>① 可以在加载NFS数据卷前就在其中准备好数据。</p>
+<p>② 可以在不同容器组之间共享数据。</p>
+<p>③ 可以被多个容器组加载并同时读写。</p>
+<h5 id="CephFS"><a href="#CephFS" class="headerlink" title="CephFS"></a>CephFS</h5><p>CephFS数据卷使得您可以挂载一个外部CephFS卷到用户的容器组中。对于 Kubernetes而言，CephFS与NFS的管理方式和行为完全相似，适用场景也相同。不同的仅仅是背后的存储介质。适用场景同NFS类似。</p>
+<h3 id="3、Volume使用"><a href="#3、Volume使用" class="headerlink" title="3、Volume使用"></a>3、Volume使用</h3><h5 id="emptyDir数据卷演示"><a href="#emptyDir数据卷演示" class="headerlink" title="emptyDir数据卷演示"></a>emptyDir数据卷演示</h5><p>emptyDir的清单</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><code class="hljs plain">apiVersion: v1<br>kind: Pod<br>metadata:<br>  name: emptydir-pod<br>spec:<br>  containers:<br>  - name: nginx<br>    image: nginx:v1.22.1<br>    imagePullPolicy: IfNotPresent<br>    volumeMounts:<br>    - mountPath: /cache<br>      name: cache-volume<br>  volumes:<br>  - name: cache-volume<br>    emptyDir:<br>      sizeLimit: 500Mi       # 容量限制(可选)<br>      medium: Memory         # 可设为内存<br></code></pre></td></tr></table></figure>
+
+<h5 id="HostPath存储卷演示"><a href="#HostPath存储卷演示" class="headerlink" title="HostPath存储卷演示"></a>HostPath存储卷演示</h5><p>hostpath的清单</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><code class="hljs plain">vi pod-hostpath-vol.yaml<br>apiVersion: v1<br>kind: Pod<br>metadata:<br>  name: pod-vol-hostpath<br>  namespace: default<br>spec:<br>  containers:<br>  - name: nginx<br>    image: nginx<br>    volumeMounts:<br>    - name: html<br>      mountPath: /usr/share/nginx/html<br>  volumes:<br>    - name: html<br>      hostPath:<br>        path: /data/pod/volume1<br>        type: DirectoryOrCreate<br></code></pre></td></tr></table></figure>
+
+<p>HostPath可以实现持久存储，但是在Node节点故障时，也会导致数据的丢失。</p>
+<h5 id="NFS共享存储卷演示"><a href="#NFS共享存储卷演示" class="headerlink" title="NFS共享存储卷演示"></a>NFS共享存储卷演示</h5><p>安装NFS，并配置NFS服务：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs plain"># 所有节点安装nfs<br>yum install -y nfs-utils<br># 主节点<br>echo &quot;/nfs/data/ *(insecure,rw,sync,no_root_squash)&quot; &gt; /etc/exports<br>mkdir -p /nfs/data<br>systemctl enable rpcbind --now<br>systemctl enable nfs-server --now<br>exportfs -r<br># 在从节点查看挂载<br>showmount -e master_ip<br># 挂载<br>mount -t nfs nfs_ip:/nfs/data 挂载目录<br></code></pre></td></tr></table></figure>
+
+<p>创建NFS存储卷的使用清单：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><code class="hljs plain">vi pod-nfs-vol.yaml<br>apiVersion: v1<br>kind: Pod<br>metadata:<br>  name: pod-vol-nfs<br>  namespace: default<br>spec:<br>  containers:<br>  - name: nginx<br>    image: nginx:v1.22.1<br>    volumeMounts:<br>    - name: html<br>      mountPath: /usr/share/nginx/html<br>  volumes:<br>    - name: html<br>      nfs:<br>        path: /data/volumes<br>        server: nfs_ip<br></code></pre></td></tr></table></figure>
+
+<h2 id="2、PV-PVC"><a href="#2、PV-PVC" class="headerlink" title="2、PV&#x2F;PVC"></a>2、PV&#x2F;PVC</h2><h3 id="1、概念-1"><a href="#1、概念-1" class="headerlink" title="1、概念"></a>1、概念</h3><p>与管理计算资源相比，管理存储资源是一个完全不同的问题。为了更好的管理存储，Kubernetes引入了Persistent Volume（PV）和Persistent Volume Claim（PVC） 两个概念，将存储管理抽象成如何提供存储以及如何使用存储两个关注点。</p>
+<p>Persistent Volume（PV存储卷）是集群中的一块存储空间，由集群管理员管理、或者由Storage Class（存储类）自动管理。PV（存储卷）和Node（节点）一样，是集群中的资源（Kubernetes集群由存储资源和计算资源组成）。Persistent Volume Claim（存储卷声明）是一种类型的Volume（数据卷），Persistent Volume Claim引用的Persistent Volume有自己的生命周期，该生命周期独立于任何使用它的容器组。Persistent Volume描述了如何提供存储的细节信息（NFS、CephFS等存储的具体参数）。</p>
+<p>Persistent Volume Claim代表用户使用存储的请求。Pod容器组消耗Node计算资源，PVC存储卷声明消耗Persistent Volume存储资源。Pod容器组可以请求特定数量的计算资源（CPU&#x2F;内存）；Persistent Volume Claim可以请求特定大小&#x2F;特定访问模式（只能被单节点读写&#x2F;可被多节点只读&#x2F;可被多节点读写）的存储资源。</p>
+<h3 id="2、PV的状态"><a href="#2、PV的状态" class="headerlink" title="2、PV的状态"></a>2、PV的状态</h3><table>
+<thead>
+<tr>
+<th>状态</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Available（可用）</td>
+<td>一块空闲资源还没有被任何声明所绑定</td>
+</tr>
+<tr>
+<td>Bound（已绑定）</td>
+<td>卷已经被声明绑定</td>
+</tr>
+<tr>
+<td>Released（已释放）</td>
+<td>声明被删除，但是资源还未被集群重新声明</td>
+</tr>
+<tr>
+<td>Failed（失败）</td>
+<td>卷的自动回收失败</td>
+</tr>
+</tbody></table>
+<h3 id="3、什么是PV"><a href="#3、什么是PV" class="headerlink" title="3、什么是PV"></a>3、什么是PV</h3><p>pv 本质上是集群中的一块持久化存储空间，独立于 pod 生命周期而存在，PV是名称集群级别的资源</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><code class="hljs yaml"><span class="hljs-attr">apiVersion:</span> <span class="hljs-string">v1</span><br><span class="hljs-attr">kind:</span> <span class="hljs-string">PersistentVolume</span><br><span class="hljs-attr">metadata:</span><br>  <span class="hljs-attr">name:</span> <span class="hljs-string">pv-demo</span><br>  <span class="hljs-attr">labels:</span><br>    <span class="hljs-attr">type:</span> <span class="hljs-string">ssd</span> <span class="hljs-comment"># 自定义标签便于筛选</span><br><span class="hljs-attr">spec:</span><br>  <span class="hljs-attr">capacity:</span><br>    <span class="hljs-attr">storage:</span> <span class="hljs-string">100Gi</span> <span class="hljs-comment"># 精确容量设置</span><br>  <span class="hljs-attr">volumeMode:</span> <span class="hljs-string">Filesystem</span> <span class="hljs-comment"># 或Block（原始块设备）</span><br>  <span class="hljs-attr">accessModes:</span><br>    <span class="hljs-bullet">-</span> <span class="hljs-string">ReadWriteOnce</span> <span class="hljs-comment"># 访问模式</span><br>  <span class="hljs-attr">persistentVolumeReclaimPolicy:</span> <span class="hljs-string">Retain</span> <span class="hljs-comment"># 回收策略</span><br>  <span class="hljs-attr">storageClassName:</span> <span class="hljs-string">gold-ssd</span> <span class="hljs-comment"># 存储类名称</span><br>  <span class="hljs-attr">mountOptions:</span> <span class="hljs-comment"># 挂载参数</span><br>    <span class="hljs-bullet">-</span> <span class="hljs-string">noatime</span><br>    <span class="hljs-bullet">-</span> <span class="hljs-string">nodelalloc</span><br>  <span class="hljs-attr">nfs:</span> <span class="hljs-comment"># 具体存储实现</span><br>    <span class="hljs-attr">path:</span> <span class="hljs-string">/exports/data</span><br>    <span class="hljs-attr">server:</span> <span class="hljs-number">192.168</span><span class="hljs-number">.1</span><span class="hljs-number">.100</span><br>    <span class="hljs-attr">readOnly:</span> <span class="hljs-literal">false</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="4、PV-的访问模式"><a href="#4、PV-的访问模式" class="headerlink" title="4、PV 的访问模式"></a>4、PV 的访问模式</h3><table>
+<thead>
+<tr>
+<th><strong>模式</strong></th>
+<th><strong>技术细节</strong></th>
+<th><strong>适用场景</strong></th>
+<th><strong>限制</strong></th>
+</tr>
+</thead>
+<tbody><tr>
+<td>ReadWriteOnce (RWO)</td>
+<td>块设备级锁定机制</td>
+<td>数据库主节点</td>
+<td>无法多节点同时读写</td>
+</tr>
+<tr>
+<td>ReadOnlyMany (ROX)</td>
+<td>客户端缓存策略</td>
+<td>共享只读配置</td>
+<td>无法修改数据</td>
+</tr>
+<tr>
+<td>ReadWriteMany (RWX)</td>
+<td>分布式锁管理</td>
+<td>用户上传目录</td>
+<td>性能低于RWO</td>
+</tr>
+<tr>
+<td>ReadWriteOncePod (RWOP)</td>
+<td>Pod UID绑定</td>
+<td>安全敏感应用</td>
+<td>Kubernetes 1.22+</td>
+</tr>
+</tbody></table>
+<h5 id="1、ReadWriteOnce（RWO）"><a href="#1、ReadWriteOnce（RWO）" class="headerlink" title="1、ReadWriteOnce（RWO）"></a>1、ReadWriteOnce（RWO）</h5><ul>
+<li><strong>能力</strong>：单节点读写</li>
+<li><strong>适用场景</strong>：数据库、单实例应用</li>
+<li><strong>支持存储</strong>：EBS、GCE PD、本地卷</li>
+</ul>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs yaml"><span class="hljs-attr">apiVersion:</span> <span class="hljs-string">v1</span><br><span class="hljs-attr">kind:</span> <span class="hljs-string">PersistentVolume</span><br><span class="hljs-attr">metadata:</span><br>  <span class="hljs-attr">name:</span> <span class="hljs-string">rwo-pv</span><br><span class="hljs-attr">spec:</span><br>  <span class="hljs-attr">accessModes:</span> [<span class="hljs-string">&quot;ReadWriteOnce&quot;</span>]<br>  <span class="hljs-attr">capacity:</span> &#123; <span class="hljs-attr">storage:</span> <span class="hljs-string">10Gi</span> &#125;<br>  <span class="hljs-attr">storageClassName:</span> <span class="hljs-string">standard</span><br>  <span class="hljs-attr">hostPath:</span><br>    <span class="hljs-attr">path:</span> <span class="hljs-string">/data/rwo</span><br></code></pre></td></tr></table></figure>
+
+<h5 id="2、ReadOnlyMany（ROX）"><a href="#2、ReadOnlyMany（ROX）" class="headerlink" title="2、ReadOnlyMany（ROX）"></a>2、ReadOnlyMany（ROX）</h5><ul>
+<li><strong>能力</strong>：多节点只读</li>
+<li><strong>适用场景</strong>：配置文件分发、只读数据共享</li>
+<li><strong>支持存储</strong>：NFS、CephFS</li>
+</ul>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs yaml"><span class="hljs-attr">apiVersion:</span> <span class="hljs-string">v1</span><br><span class="hljs-attr">kind:</span> <span class="hljs-string">PersistentVolume</span><br><span class="hljs-attr">metadata:</span><br>  <span class="hljs-attr">name:</span> <span class="hljs-string">rox-pv</span><br><span class="hljs-attr">spec:</span><br>  <span class="hljs-attr">accessModes:</span> [<span class="hljs-string">&quot;ReadOnlyMany&quot;</span>]<br>  <span class="hljs-attr">capacity:</span> &#123; <span class="hljs-attr">storage:</span> <span class="hljs-string">5Gi</span> &#125;<br>  <span class="hljs-attr">nfs:</span><br>    <span class="hljs-attr">server:</span> <span class="hljs-string">nfs-server.example.com</span><br>    <span class="hljs-attr">path:</span> <span class="hljs-string">&quot;/exports/rox&quot;</span><br></code></pre></td></tr></table></figure>
+
+<h5 id="3、ReadWriteMany（RWX）"><a href="#3、ReadWriteMany（RWX）" class="headerlink" title="3、ReadWriteMany（RWX）"></a>3、ReadWriteMany（RWX）</h5><ul>
+<li><strong>能力</strong>：多节点读写</li>
+<li><strong>适用场景</strong>：共享文件系统、协同编辑</li>
+<li><strong>支持存储</strong>：NFS、CephFS、GlusterFS</li>
+</ul>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs yaml"><span class="hljs-attr">apiVersion:</span> <span class="hljs-string">v1</span><br><span class="hljs-attr">kind:</span> <span class="hljs-string">PersistentVolume</span><br><span class="hljs-attr">metadata:</span><br>  <span class="hljs-attr">name:</span> <span class="hljs-string">rwx-pv</span><br><span class="hljs-attr">spec:</span><br>  <span class="hljs-attr">accessModes:</span> [<span class="hljs-string">&quot;ReadWriteMany&quot;</span>]<br>  <span class="hljs-attr">capacity:</span> &#123; <span class="hljs-attr">storage:</span> <span class="hljs-string">20Gi</span> &#125;<br>  <span class="hljs-attr">cephfs:</span><br>    <span class="hljs-attr">monitors:</span> [<span class="hljs-string">&quot;10.0.0.1:6789&quot;</span>]<br>    <span class="hljs-attr">path:</span> <span class="hljs-string">&quot;/shared-data&quot;</span><br>    <span class="hljs-attr">user:</span> <span class="hljs-string">admin</span><br></code></pre></td></tr></table></figure>
+
+<h5 id="4、ReadWriteOncePod（RWOP）"><a href="#4、ReadWriteOncePod（RWOP）" class="headerlink" title="4、ReadWriteOncePod（RWOP）"></a>4、ReadWriteOncePod（RWOP）</h5><ul>
+<li><strong>能力</strong>：单Pod读写</li>
+<li><strong>适用场景</strong>：有状态应用、需要独占访问的Pod</li>
+</ul>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs yaml"><span class="hljs-attr">apiVersion:</span> <span class="hljs-string">v1</span><br><span class="hljs-attr">kind:</span> <span class="hljs-string">PersistentVolume</span><br><span class="hljs-attr">metadata:</span><br>  <span class="hljs-attr">name:</span> <span class="hljs-string">rwop-pv</span><br><span class="hljs-attr">spec:</span><br>  <span class="hljs-attr">accessModes:</span> [<span class="hljs-string">&quot;ReadWriteOncePod&quot;</span>]<br>  <span class="hljs-attr">capacity:</span> &#123; <span class="hljs-attr">storage:</span> <span class="hljs-string">5Gi</span> &#125;<br>  <span class="hljs-attr">csi:</span><br>    <span class="hljs-attr">driver:</span> <span class="hljs-string">ebs.csi.aws.com</span><br>    <span class="hljs-attr">volumeHandle:</span> <span class="hljs-string">vol-0abcdef123456</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="5、PV-回收策略机制"><a href="#5、PV-回收策略机制" class="headerlink" title="5、PV 回收策略机制"></a>5、PV 回收策略机制</h3><table>
+<thead>
+<tr>
+<th>策略</th>
+<th>行为</th>
+<th>备注</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Retain（保留）</td>
+<td>状态变为不可用状态，等待管理员备份数据，在此期间不可被重新绑定</td>
+<td>需要手动回收，适合于生产数据</td>
+</tr>
+<tr>
+<td>Delete（自动删除）</td>
+<td>自动删除pv及其后端数据</td>
+<td></td>
+</tr>
+<tr>
+<td>Recycle（回收）</td>
+<td>删除数据目录所有文件（rm -rf &#x2F;volume&#x2F;*），仅支持NFS和hostPath</td>
+<td>Kubernetes 1.15+ 已废弃</td>
+</tr>
+</tbody></table>
+<h3 id="6、PVC的使用"><a href="#6、PVC的使用" class="headerlink" title="6、PVC的使用"></a>6、PVC的使用</h3><p>PV是命名空间级别的资源</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># pvc-example.yaml</span><br>apiVersion: v1<br>kind: PersistentVolumeClaim<br>metadata:<br>  name: pvc-demo<br>spec:<br>  accessModes:<br>    - ReadWriteOnce<br>  resources:<br>    requests:<br>      storage: 5Gi               <span class="hljs-comment"># 申请 5Gi 存储</span><br></code></pre></td></tr></table></figure>
+
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>K8s之存储</div>
+      <div>http://example.com/2025/10/11/K8s之存储/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>JiuQi</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2025年10月11日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2025/11/19/K8sv1-28-1%E9%83%A8%E7%BD%B2-%E5%9F%BA%E4%BA%8Ekubeadm/" title="K8sv1.28.1部署-基于kubeadm">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">K8sv1.28.1部署-基于kubeadm</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2025/10/10/K8s%E4%B9%8BConfigMap/" title="K8s之ConfigMap">
+                        <span class="hidden-mobile">K8s之ConfigMap</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/5.0.0/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
