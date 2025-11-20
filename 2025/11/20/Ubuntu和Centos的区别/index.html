@@ -19,15 +19,15 @@
   <meta name="author" content="JiuQi">
   <meta name="keywords" content="linux,sre,kubernetes">
   
-    <meta name="description" content="Welcome to Hexo! This is your very first post. Check documentation for more info. If you get any problems when using Hexo, you can find the answer in troubleshooting or you can ask me on GitHub. Quick">
+    <meta name="description" content="Ubuntu 和 Centos 的区别1、软件安装工具   操作 CentOS 7（yum） Ubuntu 22.04（apt）    更新软件源索引 yum check-update（自动） sudo apt update（必须手动）   安装软件 sudo yum install httpd sudo apt install apache2   卸载软件 sudo yum remove htt">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Hello World">
-<meta property="og:url" content="http://example.com/2025/11/19/hello-world/index.html">
+<meta property="og:title" content="Ubuntu和Centos的区别">
+<meta property="og:url" content="http://example.com/2025/11/20/Ubuntu%E5%92%8CCentos%E7%9A%84%E5%8C%BA%E5%88%AB/index.html">
 <meta property="og:site_name" content="jiuqi">
-<meta property="og:description" content="Welcome to Hexo! This is your very first post. Check documentation for more info. If you get any problems when using Hexo, you can find the answer in troubleshooting or you can ask me on GitHub. Quick">
+<meta property="og:description" content="Ubuntu 和 Centos 的区别1、软件安装工具   操作 CentOS 7（yum） Ubuntu 22.04（apt）    更新软件源索引 yum check-update（自动） sudo apt update（必须手动）   安装软件 sudo yum install httpd sudo apt install apache2   卸载软件 sudo yum remove htt">
 <meta property="og:locale" content="zh_CN">
-<meta property="article:published_time" content="2025-11-19T08:56:07.031Z">
-<meta property="article:modified_time" content="2025-11-19T08:56:07.031Z">
+<meta property="article:published_time" content="2025-11-20T05:05:55.000Z">
+<meta property="article:modified_time" content="2025-11-20T05:08:17.384Z">
 <meta property="article:author" content="JiuQi">
 <meta property="article:tag" content="kubernetes">
 <meta property="article:tag" content="linux">
@@ -36,7 +36,7 @@
   
   
   
-  <title>Hello World - jiuqi</title>
+  <title>Ubuntu和Centos的区别 - jiuqi</title>
 
   <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
 
@@ -202,7 +202,7 @@
       <div class="banner-text text-center fade-in-up">
         <div class="h2">
           
-            <span id="subtitle" data-typed-text="Hello World"></span>
+            <span id="subtitle" data-typed-text="Ubuntu和Centos的区别"></span>
           
         </div>
 
@@ -213,8 +213,8 @@
     
       <span class="post-meta">
         <i class="iconfont icon-date-fill" aria-hidden="true"></i>
-        <time datetime="2025-11-19 16:56" pubdate>
-          2025年11月19日 下午
+        <time datetime="2025-11-20 13:05" pubdate>
+          2025年11月20日 下午
         </time>
       </span>
     
@@ -225,7 +225,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          18 字
+          256 字
         
       </span>
     
@@ -236,7 +236,7 @@
         
         
         
-          1 分钟
+          3 分钟
         
       </span>
     
@@ -273,24 +273,126 @@
       <div class="container nopadding-x-md" id="board-ctn">
         <div id="board">
           <article class="post-content mx-auto">
-            <h1 id="seo-header">Hello World</h1>
+            <h1 id="seo-header">Ubuntu和Centos的区别</h1>
             
             
               <div class="markdown-body">
                 
-                <p>Welcome to <a target="_blank" rel="noopener" href="https://hexo.io/">Hexo</a>! This is your very first post. Check <a target="_blank" rel="noopener" href="https://hexo.io/docs/">documentation</a> for more info. If you get any problems when using Hexo, you can find the answer in <a target="_blank" rel="noopener" href="https://hexo.io/docs/troubleshooting.html">troubleshooting</a> or you can ask me on <a target="_blank" rel="noopener" href="https://github.com/hexojs/hexo/issues">GitHub</a>.</p>
-<h2 id="Quick-Start"><a href="#Quick-Start" class="headerlink" title="Quick Start"></a>Quick Start</h2><h3 id="Create-a-new-post"><a href="#Create-a-new-post" class="headerlink" title="Create a new post"></a>Create a new post</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">$ hexo new <span class="hljs-string">&quot;My New Post&quot;</span><br></code></pre></td></tr></table></figure>
+                <h2 id="Ubuntu-和-Centos-的区别"><a href="#Ubuntu-和-Centos-的区别" class="headerlink" title="Ubuntu 和 Centos 的区别"></a>Ubuntu 和 Centos 的区别</h2><h5 id="1、软件安装工具"><a href="#1、软件安装工具" class="headerlink" title="1、软件安装工具"></a>1、软件安装工具</h5><table>
+<thead>
+<tr>
+<th>操作</th>
+<th>CentOS 7（yum）</th>
+<th>Ubuntu 22.04（apt）</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>更新软件源索引</td>
+<td><code>yum check-update</code>（自动）</td>
+<td><code>sudo apt update</code>（必须手动）</td>
+</tr>
+<tr>
+<td>安装软件</td>
+<td><code>sudo yum install httpd</code></td>
+<td><code>sudo apt install apache2</code></td>
+</tr>
+<tr>
+<td>卸载软件</td>
+<td><code>sudo yum remove httpd</code></td>
+<td><code>sudo apt remove apache2</code></td>
+</tr>
+<tr>
+<td>搜索软件</td>
+<td><code>yum search nginx</code></td>
+<td><code>apt search nginx</code></td>
+</tr>
+<tr>
+<td>查看软件信息</td>
+<td><code>yum info nginx</code></td>
+<td><code>apt show nginx</code></td>
+</tr>
+<tr>
+<td>升级所有包</td>
+<td><code>sudo yum update</code></td>
+<td><code>sudo apt upgrade</code>（或 <code>apt full-upgrade</code>）</td>
+</tr>
+<tr>
+<td>清理缓存</td>
+<td><code>sudo yum clean all</code></td>
+<td><code>sudo apt clean</code> 或 <code>sudo apt autoclean</code></td>
+</tr>
+</tbody></table>
+<h5 id="2、防火墙"><a href="#2、防火墙" class="headerlink" title="2、防火墙"></a>2、防火墙</h5><table>
+<thead>
+<tr>
+<th>默认防火墙</th>
+<th><code>firewalld</code></th>
+<th><code>ufw</code>（Uncomplicated Firewall）</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>启用防火墙</td>
+<td><code>sudo systemctl start firewalld</code></td>
+<td><code>sudo ufw enable</code></td>
+</tr>
+<tr>
+<td>开放端口</td>
+<td><code>sudo firewall-cmd --add-port=80/tcp --permanent</code> <code>sudo firewall-cmd --reload</code></td>
+<td><code>sudo ufw allow 80/tcp</code></td>
+</tr>
+<tr>
+<td>查看规则</td>
+<td><code>firewall-cmd --list-all</code></td>
+<td><code>sudo ufw status verbose</code></td>
+</tr>
+</tbody></table>
+<p>💡 Ubuntu 服务器默认 <strong>ufw 未启用</strong>，但底层仍可用 <code>iptables</code> 或 <code>nftables</code>。</p>
+<h5 id="3、网络管理"><a href="#3、网络管理" class="headerlink" title="3、网络管理"></a>3、网络管理</h5><table>
+<thead>
+<tr>
+<th>配置文件位置</th>
+<th><code>/etc/sysconfig/network-scripts/ifcfg-eth0</code></th>
+<th><code>/etc/netplan/*.yaml</code></th>
+</tr>
+</thead>
+<tbody><tr>
+<td>配置格式</td>
+<td>传统键值对（<code>KEY=value</code>）</td>
+<td>YAML（缩进敏感）</td>
+</tr>
+<tr>
+<td>应用配置</td>
+<td><code>sudo systemctl restart network</code></td>
+<td><code>sudo netplan apply</code></td>
+</tr>
+<tr>
+<td>查看 IP</td>
+<td><code>ip a</code> 或 <code>ifconfig</code>（需安装 net-tools）</td>
+<td>同左</td>
+</tr>
+</tbody></table>
+<p>配置文件</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs yaml"><span class="hljs-attr">network:</span><br>  <span class="hljs-attr">version:</span> <span class="hljs-number">2</span><br>  <span class="hljs-attr">ethernets:</span><br>    <span class="hljs-attr">eth0:</span><br>      <span class="hljs-attr">addresses:</span> [<span class="hljs-number">192.168</span><span class="hljs-number">.1</span><span class="hljs-number">.100</span><span class="hljs-string">/24</span>]<br>      <span class="hljs-attr">routes:</span><br>        <span class="hljs-bullet">-</span> <span class="hljs-attr">to:</span> <span class="hljs-string">default</span><br>          <span class="hljs-attr">via:</span> <span class="hljs-number">192.168</span><span class="hljs-number">.1</span><span class="hljs-number">.1</span><br>      <span class="hljs-attr">nameservers:</span><br>        <span class="hljs-attr">addresses:</span> [<span class="hljs-number">8.8</span><span class="hljs-number">.8</span><span class="hljs-number">.8</span>, <span class="hljs-number">1.1</span><span class="hljs-number">.1</span><span class="hljs-number">.1</span>]<br></code></pre></td></tr></table></figure>
 
-<p>More info: <a target="_blank" rel="noopener" href="https://hexo.io/docs/writing.html">Writing</a></p>
-<h3 id="Run-server"><a href="#Run-server" class="headerlink" title="Run server"></a>Run server</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">$ hexo server<br></code></pre></td></tr></table></figure>
-
-<p>More info: <a target="_blank" rel="noopener" href="https://hexo.io/docs/server.html">Server</a></p>
-<h3 id="Generate-static-files"><a href="#Generate-static-files" class="headerlink" title="Generate static files"></a>Generate static files</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">$ hexo generate<br></code></pre></td></tr></table></figure>
-
-<p>More info: <a target="_blank" rel="noopener" href="https://hexo.io/docs/generating.html">Generating</a></p>
-<h3 id="Deploy-to-remote-sites"><a href="#Deploy-to-remote-sites" class="headerlink" title="Deploy to remote sites"></a>Deploy to remote sites</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">$ hexo deploy<br></code></pre></td></tr></table></figure>
-
-<p>More info: <a target="_blank" rel="noopener" href="https://hexo.io/docs/one-command-deployment.html">Deployment</a></p>
+<h5 id="4、其他差异"><a href="#4、其他差异" class="headerlink" title="4、其他差异"></a>4、其他差异</h5><table>
+<thead>
+<tr>
+<th>查看系统版本</th>
+<th><code>cat /etc/redhat-release</code> 或 <code>hostnamectl</code></th>
+<th><code>lsb_release -a</code> 或 <code>cat /etc/os-release</code></th>
+</tr>
+</thead>
+<tbody><tr>
+<td>默认 Shell 配置文件</td>
+<td><code>~/.bash_profile</code></td>
+<td><code>~/.bashrc</code>（登录 shell 也会加载）</td>
+</tr>
+<tr>
+<td>软件源配置</td>
+<td><code>/etc/yum.repos.d/</code></td>
+<td><code>/etc/apt/sources.list</code> 和 <code>/etc/apt/sources.list.d/</code></td>
+</tr>
+</tbody></table>
 
                 
               </div>
@@ -298,6 +400,27 @@
             <hr/>
             <div>
               <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Linux/" class="category-chain-item">Linux</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
   
   
 </div>
@@ -308,8 +431,8 @@
 
   <div class="license-box my-3">
     <div class="license-title">
-      <div>Hello World</div>
-      <div>http://example.com/2025/11/19/hello-world/</div>
+      <div>Ubuntu和Centos的区别</div>
+      <div>http://example.com/2025/11/20/Ubuntu和Centos的区别/</div>
     </div>
     <div class="license-meta">
       
@@ -321,7 +444,7 @@
       
         <div class="license-meta-item license-meta-date">
           <div>发布于</div>
-          <div>2025年11月19日</div>
+          <div>2025年11月20日</div>
         </div>
       
       
@@ -353,15 +476,15 @@
                   <article class="post-prev col-6">
                     
                     
-                      <a href="/2025/11/19/K8sv1-28-1%E9%83%A8%E7%BD%B2-%E5%9F%BA%E4%BA%8Ekubeadm/" title="K8sv1.28.1部署-基于kubeadm">
-                        <i class="iconfont icon-arrowleft"></i>
-                        <span class="hidden-mobile">K8sv1.28.1部署-基于kubeadm</span>
-                        <span class="visible-mobile">上一篇</span>
-                      </a>
-                    
                   </article>
                   <article class="post-next col-6">
                     
+                    
+                      <a href="/2025/11/19/K8sv1-28-1%E9%83%A8%E7%BD%B2-%E5%9F%BA%E4%BA%8Ekubeadm/" title="K8sv1.28.1部署-基于kubeadm">
+                        <span class="hidden-mobile">K8sv1.28.1部署-基于kubeadm</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
                     
                   </article>
                 </div>
